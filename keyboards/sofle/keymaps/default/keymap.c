@@ -8,7 +8,7 @@ enum sofle_layers {
     _QWERTY,
     _SYMBOLS,
     _SHORTCUTS,
-    _ADJUST,
+    // _ADJUST,
 };
 
 enum custom_keycodes {
@@ -16,8 +16,8 @@ enum custom_keycodes {
     KC_NXTWD,
     KC_LSTRT,
     KC_LEND,
-    CYCLE_UP,
-    CYCLE_DOWN
+    // CYCLE_UP,
+    // CYCLE_DOWN
 };
 
 #define KC_QWERTY PDF(_QWERTY)
@@ -44,7 +44,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                     KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,  KC_DEL,
   CW_TOGG,   KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                     KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN,  SC_RSPC,
   SC_LSPO,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_MUTE,     KC_MPLY,KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_INS,
-                 KC_LGUI,KC_LALT,KC_LCTL, CYCLE_DOWN, KC_SPC,      KC_ENT,  CYCLE_UP, KC_HOME, KC_END, KC_QUOT
+                 KC_LGUI,KC_LALT,KC_LCTL, MO(_SHORTCUTS), KC_SPC,      KC_ENT, MO(_SYMBOLS), KC_HOME, KC_END, KC_QUOT
 ),
 /* SYMBOLS  
  * ,-----------------------------------------.                    ,-----------------------------------------.
@@ -102,13 +102,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *            |      |      |      |      |/       /         \      \ |      |      |      |      |
  *            `----------------------------------'           '------''---------------------------'
  */
-  [_ADJUST] = LAYOUT(
-  XXXXXXX , XXXXXXX,  XXXXXXX ,  XXXXXXX , XXXXXXX, XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-  QK_BOOT  , XXXXXXX,KC_QWERTY, XXXXXXX,CG_TOGG,XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-  XXXXXXX , XXXXXXX,CG_TOGG, XXXXXXX,    XXXXXXX,  XXXXXXX,                     XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX,
-  XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX,
-                   _______, _______, _______, KC_TRNS, _______,     _______, KC_TRNS, _______, _______, _______
-  )
+//   [_ADJUST] = LAYOUT(
+//   XXXXXXX , XXXXXXX,  XXXXXXX ,  XXXXXXX , XXXXXXX, XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+//   QK_BOOT  , XXXXXXX,KC_QWERTY, XXXXXXX,CG_TOGG,XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+//   XXXXXXX , XXXXXXX,CG_TOGG, XXXXXXX,    XXXXXXX,  XXXXXXX,                     XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX,
+//   XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX,
+//                    _______, _______, _______, KC_TRNS, _______,     _______, KC_TRNS, _______, _______, _______
+//   )
 };
 
 // /*
@@ -211,21 +211,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
             }
             break;
-        case CYCLE_UP:
-            if (record->event.pressed) {
-                uint8_t current_layer = get_highest_layer(layer_state);
-                uint8_t next_layer = (current_layer < _ADJUST) ? current_layer + 1 : _QWERTY;
-                layer_move(next_layer);
-            }
-            return false;
+        // case CYCLE_UP:
+        //     if (record->event.pressed) {
+        //         uint8_t current_layer = get_highest_layer(layer_state);
+        //         uint8_t next_layer = (current_layer < _ADJUST) ? current_layer + 1 : _QWERTY;
+        //         layer_move(next_layer);
+        //     }
+        //     return false;
 
-        case CYCLE_DOWN:
-            if (record->event.pressed) {
-                uint8_t current_layer = get_highest_layer(layer_state);
-                uint8_t prev_layer = (current_layer > _QWERTY) ? current_layer - 1 : _ADJUST;
-                layer_move(prev_layer);
-            }
-            return false;
+        // case CYCLE_DOWN:
+        //     if (record->event.pressed) {
+        //         uint8_t current_layer = get_highest_layer(layer_state);
+        //         uint8_t prev_layer = (current_layer > _QWERTY) ? current_layer - 1 : _ADJUST;
+        //         layer_move(prev_layer);
+        //     }
+        //     return false;
     }
     return true;
 }
@@ -245,6 +245,6 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
     [_SHORTCUTS] = { ENCODER_CCW_CW(C(KC_MINS), C(KC_PLUS)), ENCODER_CCW_CW(KC_PRVWD, KC_NXTWD) },
     
     // Adjust layer - RGB control
-    [_ADJUST] = { ENCODER_CCW_CW(RGB_HUD, RGB_HUI), ENCODER_CCW_CW(RGB_SAD, RGB_SAI) }
+    // [_ADJUST] = { ENCODER_CCW_CW(RGB_HUD, RGB_HUI), ENCODER_CCW_CW(RGB_SAD, RGB_SAI) }
 };
 #endif
