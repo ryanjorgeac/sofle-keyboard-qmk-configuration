@@ -1,9 +1,10 @@
 // Copyright 2023 QMK
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "quantum.h"
+#include <avr/pgmspace.h>
+// #include "keymaps/default/sofle_font.c"
 
 #ifdef SWAP_HANDS_ENABLE
-
 __attribute__ ((weak))
 const keypos_t PROGMEM hand_swap_config[MATRIX_ROWS][MATRIX_COLS] =
     // The LAYOUT macro could work for this, but it was harder to figure out the
@@ -52,6 +53,7 @@ oled_rotation_t oled_init_kb(oled_rotation_t rotation) {
     if (is_keyboard_master()) {
         return OLED_ROTATION_270;
     }
+    oled_set_cursor(0, 0);
     return rotation;
 }
 
@@ -64,77 +66,81 @@ static void render_logo(void) {
     oled_write_P(qmk_logo, false);
 }
 
-static const char PROGMEM layer_box_top[] = {0x00, 0x9D, 0x9E, 0x9F, 0x00};
-static const char PROGMEM layer_box_mid_left = 0xBD;
-static const char PROGMEM layer_box_mid_right = 0xBF;
-static const char PROGMEM layer_box_bottom[] = {0x00, 0xDD, 0xDE, 0xDF, 0x00};
+static void render_logo_tux(void) {
+    static const char PROGMEM qmk_logo_tux[] = {
+        153,154,10,
+        185,186,0
+    };
 
-static const char PROGMEM layer_number_0 = 0x30; // Character for '0'
-static const char PROGMEM layer_number_1 = 0x31; // Character for '1'
-static const char PROGMEM layer_number_2 = 0x32; // Character for '2'
-static const char PROGMEM layer_number_3 = 0x33; // Character for '3'
-static const char PROGMEM layer_number_unknown = 0x3F; // Character for '?'
+    oled_write_P(qmk_logo_tux, false);
+}
 
+static const char PROGMEM layer_box_top[] = {0x80, 0x81, 0x82, 0x83, 0x84, 0x00};
+static const char PROGMEM layer_box_middle[] = {0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0x00};
+static const char PROGMEM layer_box_bottom[] = {0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0x00};
+
+static const char PROGMEM layer_qwerty = 0xA5;
+static const char PROGMEM layer_symbols = 0xA6;
+static const char PROGMEM layer_shortcuts = 0xA7;
+static const char PROGMEM layer_unknown = 0x3F;
 
 void print_status_narrow(void) {
+    oled_clear();
     uint8_t layer = get_highest_layer(layer_state);
 
-    oled_write_P(PSTR(" "), false);
-    oled_write_P(layer_box_top, 3);
-    oled_write_P(PSTR(" \n"), false);
+    oled_set_cursor(0, 0);
 
-    oled_write_P(PSTR(" "), false);
-    oled_write_char(pgm_read_byte(&layer_box_mid_left), false);
+    char layer_middle_copy[sizeof(layer_box_middle)];
+    memcpy_P(layer_middle_copy, layer_box_middle, sizeof(layer_box_middle));
 
     switch (layer) {
         case 0:
-            oled_write_char(pgm_read_byte(&layer_number_0), false);
+            layer_middle_copy[2] = layer_qwerty;
             break;
         case 1:
-            oled_write_char(pgm_read_byte(&layer_number_1), false);
+            layer_middle_copy[2] = layer_symbols;
             break;
         case 2:
-            oled_write_char(pgm_read_byte(&layer_number_2), false);
-            break;
-        case 3:
-            oled_write_char(pgm_read_byte(&layer_number_3), false);
+            layer_middle_copy[2] = layer_shortcuts;
             break;
         default:
-            oled_write_char(pgm_read_byte(&layer_number_unknown), false);
+            layer_middle_copy[2] = layer_unknown;
             break;
     }
-    
-    oled_write_char(pgm_read_byte(&layer_box_mid_right), false);
-    oled_write_P(PSTR(" \n"), false);
 
-    oled_write_P(PSTR(" "), false);
-    oled_write_P(layer_box_bottom, 3);
-    oled_write_P(PSTR(" \n"), false);
+    oled_write_P(layer_box_top, false);
+    oled_set_cursor(0, 1);
+    oled_write(layer_middle_copy, false);
+    oled_set_cursor(0, 2);
+    oled_write_P(layer_box_bottom, false);
+
+    oled_set_cursor(0, 3);
 
     switch (layer) {
         case 0:
-            oled_write_P(PSTR(" QWRT\n"), false);
+            oled_write_P(PSTR("\nQWERT"), false);
             break;
         case 1:
-            oled_write_P(PSTR(" SYMB\n"), false);
+            oled_write_P(PSTR("\nSYMBL"), false);
             break;
         case 2:
-            oled_write_P(PSTR(" SHCT\n"), false);
-            break;
-        case 3:
-            oled_write_P(PSTR(" ADJ \n"), false);
+            oled_write_P(PSTR("\nSHCUT"), false);
             break;
         default:
-            oled_write_P(PSTR(" ??? \n"), false);
+            oled_write_P(PSTR("\n ??? "), false);
             break;
     }
     
+    oled_write_P(PSTR("\n"), false);
     led_t led_usb_state = host_keyboard_led_state();
     if (led_usb_state.caps_lock) {
-        oled_write_P(PSTR("CAPS "), true);
+        oled_write_P(PSTR("CPSLK"), true);
     } else {
-        oled_write_P(PSTR(" CAPS"), false);
+        oled_write_P(PSTR("CPSLK"), false);
     }
+    
+    oled_write_P(PSTR("\n\n"), false);
+    render_logo_tux();
 }
 
 bool oled_task_kb(void) {
